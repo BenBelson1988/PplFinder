@@ -1,6 +1,6 @@
 {
   "name": "ppl-finder",
-  "homepage": "https://BenBelson1988.github.io/ppl-finder",
+  "homepage": "https://BenBelson1988.github.io/pplfinder",
   "version": "1.0.7",
   "bin": "./bin/cli.js",
   "license": "MIT",
