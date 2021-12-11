@@ -6,9 +6,10 @@ import IconButton from "@material-ui/core/IconButton";
 import FavoriteIcon from "@material-ui/icons/Favorite";
 import * as S from "./style";
 
-const UserList = ({ users, isLoading }) => {
+const UserList = ({ users, isLoading, addUser, favoriteUsers }) => {
   const [hoveredUserId, setHoveredUserId] = useState();
-
+  const [countryList, setCountryList] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const handleMouseEnter = (index) => {
     setHoveredUserId(index);
   };
@@ -17,16 +18,76 @@ const UserList = ({ users, isLoading }) => {
     setHoveredUserId();
   };
 
+  useEffect(() => {
+    filterUsers();
+  }, [isLoading, countryList, users]);
+
+  const filterUsers = () => {
+    if (countryList.length === 0) {
+      setFilteredUsers(users);
+      return;
+    }
+    setFilteredUsers(
+      users.filter((user) => {
+        for (var i = 0; i < countryList.length; i++)
+          if (user.location.country === countryList[i]) return user;
+      })
+    );
+  };
+
+  const filterCountry = (clicked, country) => {
+    clicked
+      ? setCountryList([...countryList, country])
+      : setCountryList(
+          countryList.filter((countryfilter) => {
+            return country !== countryfilter;
+          })
+        );
+  };
+
   return (
     <S.UserList>
       <S.Filters>
-        <CheckBox value="BR" label="Brazil" />
-        <CheckBox value="AU" label="Australia" />
-        <CheckBox value="CA" label="Canada" />
-        <CheckBox value="DE" label="Germany" />
+        <CheckBox
+          value="BR"
+          label="Brazil"
+          onChange={(e) => filterCountry(e, "Brazil")}
+        />
+        <CheckBox
+          value="UK"
+          label="United Kingdom"
+          onChange={(e) => filterCountry(e, "United Kingdom")}
+        />
+        <CheckBox
+          value="AU"
+          label="Australia"
+          onChange={(e) => filterCountry(e, "Australia")}
+        />
+        <CheckBox
+          value="CA"
+          label="Canada"
+          onChange={(e) => filterCountry(e, "Canada")}
+        />
+        <CheckBox
+          value="FR"
+          label="France"
+          onChange={(e) => filterCountry(e, "France")}
+        />
+        <CheckBox
+          value="DE"
+          label="Germany"
+          onChange={(e) => filterCountry(e, "Germany")}
+        />
       </S.Filters>
       <S.List>
-        {users.map((user, index) => {
+        {filteredUsers.map((user, index) => {
+          let favorite = false;
+          for (var i = 0; i < favoriteUsers.length; i++) {
+            if (user.login.uuid === favoriteUsers[i].login.uuid) {
+              favorite = true;
+              break;
+            }
+          }
           return (
             <S.User
               key={index}
@@ -46,7 +107,10 @@ const UserList = ({ users, isLoading }) => {
                   {user?.location.city} {user?.location.country}
                 </Text>
               </S.UserInfo>
-              <S.IconButtonWrapper isVisible={index === hoveredUserId}>
+              <S.IconButtonWrapper
+                onClick={() => addUser(user)}
+                isVisible={index === hoveredUserId || favorite}
+              >
                 <IconButton>
                   <FavoriteIcon color="error" />
                 </IconButton>
